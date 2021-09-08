@@ -2,5 +2,3 @@ Name: Rex::Module::Commands::Cronjob
 Description: A cronjob module for Rex, it uses cron commands
 Author: Paulo Graça <paulo.graca@fccn.pt>
 License: Apache 2.0
-Require:
-  - Rex::Ext::ParamLookup
