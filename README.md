@@ -64,6 +64,8 @@ Or, you can use it as a library in your project
  or you can also reference it in your batch tasks
  
  ```
+ use Rex::Module::Commands::Cronjob;
+ 
  desc "Deploy batch task";
  batch "deploy" => "initial_setup", "Module:Commands:Cronjob:prepare";
  ``` 
