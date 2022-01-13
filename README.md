@@ -12,6 +12,7 @@ Require:
         branch: main
 ```
 
+## Directly from CLI
 
 You need to have in your CMDB yaml file the tasks configuration, example:
 
@@ -30,6 +31,18 @@ You can execute it directly from the command line (please mind to firstly add `u
 rex -H $host Module:Commands:Cronjob:prepare
 ```
 
+## From your project
+
+You can use it without parameters - it will use configured CMDB settings
+```
+ use Rex::Module::Commands::Cronjob;
+    
+ task "prepare", sub {
+    Rex::Module::Commands::Cronjob::prepare();
+ };
+ ```
+
+
 Or, you can use it as a library in your project
 ```
  use Rex::Module::Commands::Cronjob;
@@ -47,3 +60,10 @@ Or, you can use it as a library in your project
     });
  };
  ```
+ 
+ or you can also reference it in your batch tasks
+ 
+ ```
+ desc "Deploy batch task";
+ batch "deploy" => "initial_setup", "Module:Commands:Cronjob:prepare";
+ ``` 
