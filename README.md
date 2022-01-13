@@ -12,6 +12,8 @@ Require:
         branch: main
 ```
 
+please do a `rexify --resolve-deps` after adding it
+
 ## Directly from CLI
 
 You need to have in your CMDB yaml file the tasks configuration, example:
