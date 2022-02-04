@@ -19,7 +19,7 @@ task "prepare",
 	sub {
 		my $actions = shift;
 
-		if ($actions ne "") {
+		if (ref $actions ne "HASH") {
 			#$actions = param_lookup($?)->{'Rex::Module::Commands::Cronjob'};
 			$actions = param_lookup ('actions');
 		}
