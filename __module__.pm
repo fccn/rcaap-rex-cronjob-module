@@ -19,33 +19,34 @@ task "prepare",
 	sub {
 		my $actions = shift;
 
-		if (ref $actions ne "HASH") {
-			#$actions = param_lookup($?)->{'Rex::Module::Commands::Cronjob'};
+		if (!defined($actions) || !%{$actions}) {
+			# it will try to lookup on Rex::Module::Commands::Cronjob::actions, or Module::Commands::Cronjob::actions or actions at your CMDB file.
 			$actions = param_lookup ('actions');
 		}
 
-		die ("No cronjob actions defined") unless $actions;
+		if ($actions) {
+			foreach my $action (sort(keys %{$actions})) {
+				my $cron_config = {
+					cron      => $action,
+					ensure    => exists ( $actions->{$action}->{"ensure"})? $actions->{$action}->{"ensure"} : 'present',
+					user      => exists ( $actions->{$action}->{"user"})? $actions->{$action}->{"user"} : 'root',
+					minute    => exists ( $actions->{$action}->{"minute"})? $actions->{$action}->{"minute"} : undef,
+					hour      => exists ( $actions->{$action}->{"hour"})? $actions->{$action}->{"hour"} : undef,
+					day_of_month      => exists ( $actions->{$action}->{"day_of_month"})? $actions->{$action}->{"day_of_month"} : undef,
+					month     => exists ( $actions->{$action}->{"month"})? $actions->{$action}->{"month"} : undef,    
+					day_of_week      => exists ( $actions->{$action}->{"day_of_week"})? $actions->{$action}->{"day_of_week"} : undef,
+					command   => exists ( $actions->{$action}->{"command"})? $actions->{$action}->{"command"} : undef,
+				};
 
-		
-		foreach my $action (sort(keys %{$actions})) {
-			my $cron_config = {
-				cron      => $action,
-				ensure    => exists ( $actions->{$action}->{"ensure"})? $actions->{$action}->{"ensure"} : 'present',
-				user      => exists ( $actions->{$action}->{"user"})? $actions->{$action}->{"user"} : 'root',
-				minute    => exists ( $actions->{$action}->{"minute"})? $actions->{$action}->{"minute"} : undef,
-				hour      => exists ( $actions->{$action}->{"hour"})? $actions->{$action}->{"hour"} : undef,
-				day_of_month      => exists ( $actions->{$action}->{"day_of_month"})? $actions->{$action}->{"day_of_month"} : undef,
-				month     => exists ( $actions->{$action}->{"month"})? $actions->{$action}->{"month"} : undef,    
-				day_of_week      => exists ( $actions->{$action}->{"day_of_week"})? $actions->{$action}->{"day_of_week"} : undef,
-				command   => exists ( $actions->{$action}->{"command"})? $actions->{$action}->{"command"} : undef,
-			};
-
-			if (defined $cron_config->{'command'}) {
-				cron add => $cron_config->{'user'}, $cron_config;
-				Rex::Logger::info("Cronjob $cron_config->{'cron'} added to user $cron_config->{'user'}");
-			} else {
-				Rex::Logger::info("Cronjob adding failed. CRON command isn't defined",'error');
+				if (defined $cron_config->{'command'}) {
+					cron add => $cron_config->{'user'}, $cron_config;
+					Rex::Logger::info("Cronjob $cron_config->{'cron'} added to user $cron_config->{'user'}");
+				} else {
+					Rex::Logger::info("Cronjob adding failed. CRON command isn't defined",'error');
+				}
 			}
+		} else {
+			Rex::Logger::info("No cronjob actions defined",'error');
 		}
 
 	};
