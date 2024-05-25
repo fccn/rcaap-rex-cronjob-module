@@ -14,6 +14,47 @@ use Rex::Resource::Common;
 #rexify --use Rex::Ext::ParamLookup
 #also requires Devel::Caller
 
+desc "Initialize Cronjob";
+task "init",
+	sub {
+		delete_all();
+		prepare();
+	};
+
+desc "Delete all Cronjob entries for all users or for a specific user";
+task "delete_all",
+	sub {
+		my $param_user = shift;
+		my @users = ();
+		my $actions;
+
+		# we need to know which users are configured and delete all entries for each one
+		if (defined($param_user) && %{$param_user}) {
+			push(@users, $param_user);
+		} else {
+			# it will try to lookup on Rex::Module::Commands::Cronjob::actions, or Module::Commands::Cronjob::actions or actions at your CMDB file.
+			$actions = param_lookup ('actions');
+
+			if ($actions) {
+				foreach my $action (sort(keys %{$actions})) {
+					push(@users, $actions->{$action}->{"user"});
+				}
+			}
+
+		}
+
+		# delete all cron entries
+		foreach my $user (@users) {
+			my @crons = cron list => $user;
+			my $array_size = scalar(@crons);
+			for (my $i = 0 ; $i < $array_size ; $i++) {
+				# always delete the first element
+				cron delete => $user, 0;
+			}
+		}
+
+	};
+
 desc "Cronjob prepare";
 task "prepare",
 	sub {
